@@ -1,0 +1,93 @@
+> Task :gradle-plugin:settings-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:settings-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:settings-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:jar UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:checkKotlinGradlePluginConfigurationErrors
+> Task :gradle-plugin:react-native-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:react-native-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:jar UP-TO-DATE
+
+> Configure project :expo
+
+Using expo modules
+  - [32mexpo-asset[0m (10.0.10)
+  - [32mexpo-blur[0m (13.0.3)
+  - [32mexpo-constants[0m (16.0.2)
+  - [32mexpo-document-picker[0m (12.0.2)
+  - [32mexpo-file-system[0m (17.0.1)
+  - [32mexpo-font[0m (12.0.10)
+  - [32mexpo-image-loader[0m (4.7.0)
+  - [32mexpo-image-manipulator[0m (12.0.5)
+  - [32mexpo-image-picker[0m (15.1.0)
+  - [32mexpo-intent-launcher[0m (11.0.1)
+  - [32mexpo-keep-awake[0m (13.0.2)
+  - [32mexpo-linear-gradient[0m (13.0.2)
+  - [32mexpo-media-library[0m (16.0.5)
+  - [32mexpo-modules-core[0m (1.12.26)
+  - [32mexpo-sharing[0m (12.0.1)
+  - [32mexpo-splash-screen[0m (0.27.7)
+  - [32mexpo-system-ui[0m (3.0.7)
+
+
+> Configure project :react-native-firebase_app
+:react-native-firebase_app package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_app:firebase.bom using default value: 33.9.0
+:react-native-firebase_app:play.play-services-auth using default value: 21.3.0
+:react-native-firebase_app package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_app:version set from package.json: 21.10.0 (21,10,0 - 21010000)
+:react-native-firebase_app:android.compileSdk using custom value: 34
+:react-native-firebase_app:android.targetSdk using custom value: 34
+:react-native-firebase_app:android.minSdk using custom value: 23
+:react-native-firebase_app:reactNativeAndroidDir C:\DEV\Atauan\projeto-teste-app_V1\node_modules\react-native\android
+
+> Configure project :react-native-firebase_auth
+:react-native-firebase_auth package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\auth\package.json
+:react-native-firebase_app package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_auth:firebase.bom using default value: 33.9.0
+:react-native-firebase_auth package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\auth\package.json
+:react-native-firebase_auth:version set from package.json: 21.10.0 (21,10,0 - 21010000)
+:react-native-firebase_auth:android.compileSdk using custom value: 34
+:react-native-firebase_auth:android.targetSdk using custom value: 34
+:react-native-firebase_auth:android.minSdk using custom value: 23
+:react-native-firebase_auth:reactNativeAndroidDir C:\DEV\Atauan\projeto-teste-app_V1\node_modules\react-native\android
+
+> Configure project :react-native-firebase_firestore
+:react-native-firebase_firestore package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\firestore\package.json
+:react-native-firebase_app package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_firestore:firebase.bom using default value: 33.9.0
+:react-native-firebase_firestore package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\firestore\package.json
+:react-native-firebase_firestore:version set from package.json: 21.10.0 (21,10,0 - 21010000)
+:react-native-firebase_firestore:android.compileSdk using custom value: 34
+:react-native-firebase_firestore:android.targetSdk using custom value: 34
+:react-native-firebase_firestore:android.minSdk using custom value: 23
+:react-native-firebase_firestore:reactNativeAndroidDir C:\DEV\Atauan\projeto-teste-app_V1\node_modules\react-native\android
+
+> Configure project :react-native-firebase_storage
+:react-native-firebase_storage package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\storage\package.json
+:react-native-firebase_app package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\app\package.json
+:react-native-firebase_storage:firebase.bom using default value: 33.9.0
+:react-native-firebase_storage package.json found at C:\DEV\Atauan\projeto-teste-app_V1\node_modules\@react-native-firebase\storage\package.json
+:react-native-firebase_storage:version set from package.json: 21.10.0 (21,10,0 - 21010000)
+:react-native-firebase_storage:android.compileSdk using custom value: 34
+:react-native-firebase_storage:android.targetSdk using custom value: 34
+:react-native-firebase_storage:android.minSdk using custom value: 23
+:react-native-firebase_storage:reactNativeAndroidDir C:\DEV\Atauan\projeto-teste-app_V1\node_modules\react-native\android
+
+> Task :dependencies
+
+------------------------------------------------------------
+Root project 'Eu Trabalhador'
+------------------------------------------------------------
+
+No configurations
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 24s
+11 actionable tasks: 3 executed, 8 up-to-date

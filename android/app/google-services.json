@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "32377843066",
+    "project_id": "eu-trabalhador",
+    "storage_bucket": "eu-trabalhador.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:32377843066:android:4343af3bd3e6a6c0a23ac3",
+        "android_client_info": {
+          "package_name": "com.eu.trabalhador"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaaP7KzXd2Y55zmVyPmFSEkz3EeqCoMoo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

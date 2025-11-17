@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Eu Trabalhador",
+    "slug": "projeto-teste-app",
+    "version": "1.0.0",
+    "extra": {
+      "eas": {
+        "projectId": "00844620-f688-42cf-9829-a1e34bffa7e4"
+      }
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
