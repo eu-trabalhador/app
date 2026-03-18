@@ -1,4 +1,4 @@
-import { StyleSheet,  View, TouchableOpacity, Text, Modal, FlatList ,KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator, Image,} from 'react-native';
+import { StyleSheet,  View, TouchableOpacity, Text, Modal, FlatList ,KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator, Image, Alert,} from 'react-native';
 import { HeaderM2 } from '../components/HeaderM2';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CardM3 } from '../components/CardM3';
@@ -23,6 +23,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { NotFoundFile } from '../components/NotFoundFile';
 import { MarcaDaguaCaptura } from '../components/MarcaDaguaCaptura';
 import * as MediaLibrary from 'expo-media-library';
+import React from 'react';
 
 export default function MeusArquivosImagens() {
   const navigation = useNavigation<AppStack>();
@@ -142,15 +143,54 @@ export default function MeusArquivosImagens() {
 
   const hadleDowload2 = async (item: string) => {
     setloadVisible(true);
+
     try {
-      if (showImagemOrigem === 'camera' && marcaDaguaRef.current) {
-        const uri = await marcaDaguaRef.current.capturarImagem();
-        if (uri) await MediaLibrary.saveToLibraryAsync(uri);
-      } else if (item) {
+
+  if (showImagemOrigem === 'camera' && marcaDaguaRef.current) {
+
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  const uri = await marcaDaguaRef.current.capturarImagem();
+
+  console.log("URI capturada:", uri);
+
+  if (uri) {
+
+    await MediaLibrary.createAssetAsync(uri);
+
+    Alert.alert(
+      "Sucesso",
+      "Imagem salva na galeria"
+    );
+
+  } else {
+
+    Alert.alert(
+      "Erro",
+      "Falha ao capturar imagem"
+    );
+
+  }
+
+  } else if (item) {
+
         await downloadImage([item]);
+
       }
+
+    } catch (error) {
+
+      console.log(error);
+
+      Alert.alert(
+        "Erro",
+        "Não foi possível salvar a imagem"
+      );
+
     } finally {
+
       setloadVisible(false);
+
     }
   };
 

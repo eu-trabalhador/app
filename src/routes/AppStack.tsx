@@ -1,5 +1,6 @@
 import { createNativeStackNavigator, NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useUser } from "../context/Auth";
+import React from 'react';
 
 import Home from '../screens/Home';
 import HomeAdmin from '../screens/HomeAdmin';

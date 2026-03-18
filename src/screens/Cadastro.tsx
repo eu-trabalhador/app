@@ -14,6 +14,7 @@ import {validarCPF,validarEmail} from '../context/Validador'
 import {useUser} from '../context/Auth'
 import { InputPassword } from '../components/InputPassword';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React from 'react';
 
 
 

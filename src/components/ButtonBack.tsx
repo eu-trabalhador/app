@@ -1,4 +1,4 @@
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 
@@ -7,7 +7,7 @@ export const ButtonBack = ({navigation}) => {
   
   return (
     <TouchableOpacity style={styles.button} onPress={()=>navigation.goBack()}>
-      <Icon name="chevron-left" style={styles.icon} size = {60}  color="white" />
+      <MaterialIcons name="chevron-left" size={60} color="white" />
     </TouchableOpacity>
   );
 };

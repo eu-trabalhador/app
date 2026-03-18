@@ -37,6 +37,7 @@ interface AuthContexDate{
  loged:boolean,
  setAction:React.Dispatch<React.SetStateAction<string>>,
  setLoged:React.Dispatch<React.SetStateAction<boolean>>,
+ loadingUsuario: boolean;
 }
 
 export const AuthContex = createContext<AuthContexDate>(
@@ -192,7 +193,7 @@ const unsubscribe = auth().onAuthStateChanged(async (_user) => {
     };
 
 
-    if(!action) setInitializing(false)
+    // if(!action) setInitializing(false)
 
   },[action]) 
 
@@ -236,28 +237,29 @@ async function signUp(email: string, password: string): Promise<FirebaseAuthType
 }
 
 
-  async function signIn(email:string , password:string):Promise<void>{
-    try{
-      setAction("login")
-      setInitializing(true)
-      if(email!=="" && password!==""){
-        await auth()
-        .signInWithEmailAndPassword(email , password)
-        .catch(error => {
-          handleError(error)
-          setInitializing(false);
-        })
-        
+async function signIn(email: string, password: string): Promise<void> {
 
-      }else{
-        setInitializing(false);
-        handleError('Credenciais não inseridas.')
-      }
-    }catch(error:any){
-      handleError(error)
-      setInitializing(false);
-    }
+  if (!email || !password) {
+    handleError("Credenciais não inseridas.");
+    return;
   }
+
+  try {
+
+    setInitializing(true);
+    setAction("login");
+
+    await auth().signInWithEmailAndPassword(email, password);
+
+  }
+  catch (error: any) {
+
+    setInitializing(false);
+    handleError(error);
+
+  }
+
+}
 
   async function signOut():Promise<void>{
     try{
@@ -271,14 +273,8 @@ async function signUp(email: string, password: string): Promise<FirebaseAuthType
     }
   }
 
-  async function modifyPassword(email:string):Promise<void>{
-    try{
-      await auth()
-      .sendPasswordResetEmail(email)
-      .catch(error => handleError(error))
-    }catch (error) {
-      Alert.alert("Erro ao modificar a senha, tente novamente!");
-    }
+  async function modifyPassword(email: string): Promise<void> {
+    await auth().sendPasswordResetEmail(email);
   }
 
   useEffect(() => {
@@ -314,6 +310,7 @@ async function signUp(email: string, password: string): Promise<FirebaseAuthType
   const contextValue = {
     user,
     initializing,
+    loadingUsuario,
     visibleBar,
     setVisibleBar,
     setUser,

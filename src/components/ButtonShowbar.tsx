@@ -1,4 +1,4 @@
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { TouchableOpacity, StyleSheet, View } from 'react-native';
 
@@ -16,7 +16,7 @@ export const ButtonShowbar = ({press}:Props) => {
             press()
           }
         }}>
-        <Icon name="menu" style={styles.icon} size = {50} color="white" />
+        <MaterialIcons name="menu" size={50} color="white" />
       </TouchableOpacity> 
       
 

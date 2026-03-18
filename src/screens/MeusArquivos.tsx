@@ -12,6 +12,7 @@ import { AppStack } from '../routes/AppStack'
 import { useState } from 'react';
 import { Bar } from '../components/Bar';
 import { useUser } from '../context/Auth';
+import React from 'react';
 
 export default function MeusArquivos() {
   const{visibleBar,setVisibleBar} = useUser();

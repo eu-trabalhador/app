@@ -26,6 +26,7 @@ import firestore from "@react-native-firebase/firestore"
 import { handleError } from '../context/Auth';
 import {useNavigation} from '@react-navigation/native'
 import { AppStack } from '../routes/AppStack'
+import React from 'react';
 
 export default function Home() {
 

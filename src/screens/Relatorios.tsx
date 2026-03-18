@@ -1,4 +1,6 @@
-import { StyleSheet,  View, TouchableOpacity, Text, Modal, Image, FlatList, ActivityIndicator, Button, TextInput, TouchableWithoutFeedback, Pressable, Alert } from 'react-native';
+import { StyleSheet,  View, TouchableOpacity, Text, Modal, Image, FlatList, ActivityIndicator, Button, TextInput, Pressable, Alert, BackHandler } from 'react-native';
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 import { HeaderM2 } from '../components/HeaderM2';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -51,6 +53,7 @@ import RNFetchBlob from 'react-native-blob-util';
 import { MarcaDaguaCaptura } from '../components/MarcaDaguaCaptura';
 import * as MediaLibrary from 'expo-media-library';
 import { useRef } from 'react';
+import React from 'react';
 
 
 export default function Relatorios() {
@@ -96,6 +99,10 @@ export default function Relatorios() {
   const [showImagemLongitude, setShowImagemLongitude] = useState<string | null>(null);
   const [showImagemDataEnvio, setShowImagemDataEnvio] = useState<string | null>(null);
 
+  const closeModal = () => {
+    setShowDocumentoGreat(false);
+    setShowDocumentoItem({ url: "", type: "", name: "" });
+  };
 
   // const [visibleBar, setvisibleBar] = useState(false);
   
@@ -106,38 +113,6 @@ export default function Relatorios() {
   useEffect(()=>{if(show) setShowOrder(false),setShowTipo(false)},[show])
   useEffect(()=>{if(showOrder) setShow(false),setShowTipo(false)},[showOrder])
   useEffect(()=>{if(showTipo) setShow(false),setShowOrder(false)},[showTipo])
-
-  // const [selecting, setSelecting] = useState(false);
-
-  // const [textSelection, setTextSelection] = useState("Selecionar");
-
-  // const toggleselecting = (value: SetStateAction<boolean>) => {
-  //   // console.log(value)
-  //   setSelecting(value);
-  //   if(value){
-  //     setTextSelection("Selecionando")
-  //   }else{
-  //     setTextSelection("Selecionar")
-  //   }    
-  // };
-
-  // const [number, setNumber] = useState(0); 
-  // const toggleNumber = (value: number) => {    
-  //   setNumber(value+number);
-  //   toggleVisible(value+number)
-  // };
-  
-  
-  // const [visible, setVisible] = useState(false);
-  // const toggleVisible = (value:number) => {
-  //   // console.log(true)
-  //   if(value > 0){
-  //     setVisible(true)
-  //   }else{
-  //     setVisible(false)
-      
-  //   }
-  // };
 
     const hadleDowload2 = async (item: string) => {
       setloadVisible(true);
@@ -239,28 +214,52 @@ export default function Relatorios() {
   } 
   
 
-  const filterData = async (filesnew:fileDoc[],dmin:string,dmax:string)=>{
-    setSpiner(true)
-    let newFiles = filesnew;
-    // console.log("antes",newFiles)
-    if(!alertData2&&!alertData1){
-      if(dmin)
-        newFiles = newFiles.filter((elemento)=>{
-          return new Date(elemento.dataCriacao.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1")) >= new Date(dmin.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1"))
-        })
-      if(dmax) 
-        newFiles = newFiles.filter((elemento)=>{
-         return new Date(elemento.dataCriacao.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1")) <= new Date(dmax.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1"))
-        }) 
-      // console.log("depois",newFiles)
+const parseDateBR = (dateStr: string) => {
+  if (!dateStr) return null;
 
-      if(files.length == 0) setNotFoundFile(true)
-    
-      setFiles(newFiles)
-      setFilesOk(true)
-      
-    }
-  }
+  const cleanDate = dateStr.split(',')[0].trim();
+
+  const parts = cleanDate.split('/');
+  if (parts.length !== 3) return null;
+
+  const day = Number(parts[0]);
+  const month = Number(parts[1]);
+  const year = Number(parts[2]);
+
+  const date = new Date(year, month - 1, day);
+
+  return isNaN(date.getTime()) ? null : date;
+};
+
+const parseDateBREnd = (dateStr: string) => {
+  const [day, month, year] = dateStr.split('/').map(Number);
+  return new Date(year, month - 1, day, 23, 59, 59);
+};
+
+const filterData = async (filesnew: fileDoc[], dmin: string, dmax: string) => {
+  setSpiner(true);
+
+  let newFiles = filesnew;
+
+  const minDate = dmin ? parseDateBR(dmin) : null;
+  const maxDate = dmax ? parseDateBR(dmax) : null;
+
+  newFiles = newFiles.filter((elemento) => {
+
+    const fileDate = parseDateBR(elemento.dataCriacao);
+    if (!fileDate) return false;
+
+    if (minDate && fileDate < minDate) return false;
+    if (maxDate && fileDate > maxDate) return false;
+
+    return true;
+  });
+
+  setNotFoundFile(newFiles.length === 0);
+
+  setFiles(newFiles);
+  setFilesOk(true);
+};
 
   const handleFilterApply=(dmin:string,dmax:string)=>{
     filterData(originalFiles,dmin,dmax)
@@ -399,6 +398,44 @@ useEffect(()=>{
     if(showDocumentoItem?.url) setShowDocumentoGreat(true)
   },[showDocumentoItem])
 
+  useFocusEffect(
+    useCallback(() => {
+
+      const onBackPress = () => {
+
+        if (showImagemSelecionada) {
+          setShowImagemSelecionada(false)
+          return true
+        }
+
+        if (showDocumentoGreat) {
+          closeModal()
+          return true
+        }
+
+        if (showImagemGreat) {
+          setShowImagemGreat(false)
+          setShowImagemItem([])
+          return true
+        }
+
+        return false
+      }
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      )
+
+      return () => subscription.remove()
+
+    }, [
+      showImagemSelecionada,
+      showDocumentoGreat,
+      showImagemGreat
+    ])
+  )
+
 
   return (
     <LinearGradient colors={["#F7FAFC","#8BC4FD"]} style = {styles.container}>
@@ -411,17 +448,6 @@ useEffect(()=>{
         </View>
 
         <View style = {styles.body}>
-          {/* <TouchableOpacity onPress={()=> toggleselecting(!selecting)}>
-          <TouchableOpacity 
-            onPress={() => {
-              if(!selecting){
-                toggleselecting(true);
-              }
-            }}
-            >
-            <Text style={styles.textSelection} allowFontScaling={false}>{'textSelection'}</Text>
-          </TouchableOpacity> */}
-
           <View style = {styles.filtercontainer}>
             <View style = {styles.vectorfilter}>
               <TouchableOpacity style={{width:50,height:30,alignItems:'center',justifyContent:'center',flexDirection:'row'}} onPress={()=>{setShowOrder(!showOrder)}}>
@@ -587,108 +613,117 @@ useEffect(()=>{
                   text3 = {`${item.cidade.charAt(0).toUpperCase() + item.cidade.slice(1).toLowerCase()}, ${item.uf.toUpperCase()}`}
                   text4 = {`criado em ${parseDate(item.dataCriacao).day} de ${parseDate(item.dataCriacao).month} de ${parseDate(item.dataCriacao).year}`}
                   text5 = {`${item.quantidade} ${item.quantidade > 1?"itens":"item"}`}
-                  onPress={() => {setShowImagemItem(item.itens)}}
+                  onPress={() => {
+                    console.log("TIPO DO GRUPO:", item.type)
+                    console.log("PRIMEIRO ITEM:", item.itens[0])
+                    console.log("TYPE DO ITEM:", item.itens[0]?.type)
+                    setShowImagemItem(item.itens);setShowImagemGreat(true)}}
                 />
               )}
             />}
           </View>
 
         </View>
-        
-        {/* {visible && (<View style={styles.containerButtonsActions}>
-          <ButtonComponentCircleM2 imagePath={heroicons_solid_download}/>
-          <ButtonComponentCircleM2 imagePath={mdi_share}/> 
-        </View>)} */}
 
         {/* Modal de imagens */}
-<Modal
-  transparent
-  visible={showImagemGreat}
-  animationType="fade"
-  onRequestClose={() => {
-    setShowImagemGreat(false);
-    setShowImagemItem([]);
-  }}
->
-  <TouchableWithoutFeedback
-    onPress={() => {
-      // Fecha o modal se o usuário clicar fora
-      setShowImagemGreat(false);
-      setShowImagemItem([]);
-    }}
-  >
-    <View style={styles.modal2}>
-      {/* Impede que o clique nas imagens também feche o modal */}
-      <TouchableWithoutFeedback>
-        <View>
-          {showImagemItem.length > 0 && showImagemItem[0].type === "documento" ? (
-            <View style={{ backgroundColor: "#ffffff", flex: 1, paddingTop: 30 }}>
-              <Text
-                style={{
-                  fontWeight: "600",
-                  fontSize: 22,
-                  width: "100%",
-                  color: "#146cc4ec",
-                  marginLeft: 10,
-                  marginBottom: 20,
-                }}
-              >
-                Documentos Enviados
-              </Text>
-              <FlatList
-                contentContainerStyle={styles.containerCards}
-                data={showImagemItem}
-                keyExtractor={(item) => item.id}
-                extraData={showImagemItem}
-                renderItem={({ item }) => (
-                  <CardM41
-                    imagePath={item.url}
-                    name={item.nome}
-                    extecao={image(item.url)}
-                    text1={item.nome}
-                    text2={`${item.cidade.charAt(0).toUpperCase() + item.cidade.slice(1).toLowerCase()}, ${item.uf.toUpperCase()}`}
-                    text3={item.dataCadastro.split(" ")[0]}
-                    text4={`criado em ${item.dataCriacao}`}
-                    selecting={false}
-                    view={(it) => handleShowDocument(it, item.extencao, item.nome)}
-                    action={() => {}}
+        <Modal
+          transparent
+          visible={showImagemGreat}
+          animationType="fade"
+          onRequestClose={() => {
+            setShowImagemGreat(false);
+            setShowImagemItem([]);
+          }}
+        >
+          <View style={styles.modal2}>
+
+            {/* BOTÃO FECHAR */}
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                top: 40,
+                right: 20,
+                zIndex: 20,
+                backgroundColor: "#fff",
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                alignItems: "center",
+                justifyContent: "center",
+                elevation: 6
+              }}
+              onPress={() => {
+                setShowImagemGreat(false);
+                setShowImagemItem([]);
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>✕</Text>
+            </TouchableOpacity>
+
+            <View style={{ flex: 1 }}>
+              {showImagemItem.length > 0 && showImagemItem[0].type === "documento" ? (
+                <View style={{ backgroundColor: "#ffffff", flex: 1, paddingTop: 30 }}>
+                  <Text
+                    style={{
+                      fontWeight: "600",
+                      fontSize: 22,
+                      color: "#146cc4ec",
+                      marginLeft: 10,
+                      marginBottom: 20
+                    }}
+                  >
+                    Documentos Enviados
+                  </Text>
+
+                  <FlatList
+                    contentContainerStyle={styles.containerCards}
+                    data={showImagemItem}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                      <CardM41
+                        imagePath={item.url}
+                        name={item.nome}
+                        extecao={image(item.url)}
+                        text1={item.nome}
+                        text2={`${item.cidade.charAt(0).toUpperCase() + item.cidade.slice(1).toLowerCase()}, ${item.uf.toUpperCase()}`}
+                        text3={item.dataCadastro.split(" ")[0]}
+                        text4={`criado em ${item.dataCriacao}`}
+                        selecting={false}
+                        view={(it) => handleShowDocument(it, item.extencao, item.nome)}
+                        action={() => {}}
+                      />
+                    )}
                   />
-                )}
-              />
-            </View>
-          ) : (
-            <FlatList
-              contentContainerStyle={styles.containerCards}
-              data={showImagemItem}
-              keyExtractor={(item) => item.id}
-              extraData={showImagemItem}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    // Define qual imagem foi selecionada
-                    setShowImagemItemSelecionada(item.url);
-                    setShowImagemDataEnvio(item.dataCadastro || null);
-                    setShowImagemLocalizacao(`${item.cidade}, ${item.uf}`);
-                    setShowImagemLatitude(item.geolocalizacao?.latitude || null);
-                    setShowImagemLongitude(item.geolocalizacao?.longitute || null);
-                    setShowImagemOrigem(item.origem || null);
-                    setShowImagemSelecionada(true);
-                  }}
-                >
-                  <Image
-                    source={{ uri: `${item.url}` }}
-                    style={{ width: "100%", height: 400, resizeMode: "contain" }}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                </View>
+              ) : (
+                <FlatList
+                  contentContainerStyle={styles.containerCards}
+                  data={showImagemItem}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setShowImagemItemSelecionada(item.url);
+                        setShowImagemDataEnvio(item.dataCadastro || null);
+                        setShowImagemLocalizacao(`${item.cidade}, ${item.uf}`);
+                        setShowImagemLatitude(item.geolocalizacao?.latitude || null);
+                        setShowImagemLongitude(item.geolocalizacao?.longitute || null);
+                        setShowImagemOrigem(item.origem || null);
+                        setShowImagemSelecionada(true);
+                      }}
+                    >
+                      <Image
+                        source={{ uri: item.url }}
+                        style={{ width: "100%", height: 400 }}
+                        resizeMode="contain"
+                      />
+                    </TouchableOpacity>
+                  )}
+                />
               )}
-            />
-          )}
-        </View>
-      </TouchableWithoutFeedback>
-    </View>
-  </TouchableWithoutFeedback>
-</Modal>
+            </View>
+          </View>
+        </Modal>
 
 
         {/* Modal de exibição de PDFs*/}
@@ -696,29 +731,74 @@ useEffect(()=>{
           transparent
           visible={showDocumentoGreat}
           animationType="fade"
-          onRequestClose={() => {
-            setShowDocumentoGreat(false),
-            setShowDocumentoItem({url:"",type:"",name:""})
-            // setShowImagemGreat(true)
-          
-          }}
+          statusBarTranslucent
+          onRequestClose={closeModal}
         >
-          
-          <View style={styles.modal2}>
-            
-            {showDocumentoItem?.type==".pdf"?
-            <Pdf
-              trustAllCerts={false}
-              source={{uri:`${showDocumentoItem.url}`, cache: true,headers: { "User-Agent": "Mozilla/5.0" }}} 
-              style={{flex:1}} 
-            />:null}
-            <View style={styles.containerButtonsActions2}>
-              <ButtonComponentCircleM2 imagePath={mdi_share} onPress={()=>handleShareFile3(showDocumentoItem?showDocumentoItem.url:"")}/> 
-              <ButtonComponentCircleM2 imagePath={heroicons_solid_download} onPress={()=>showDocumentoItem?hadleDowload3(showDocumentoItem.url,showDocumentoItem?.name):""}/>
-            </View>
+
+          <View style={styles.modalOverlay}>
+
+            {/* BOTÃO FECHAR */}
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                top: 40,
+                right: 20,
+                zIndex: 20,
+                backgroundColor: "#fff",
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                alignItems: "center",
+                justifyContent: "center",
+                elevation: 6
+              }}
+              onPress={closeModal}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>✕</Text>
+            </TouchableOpacity>
+
+            <Pressable
+              style={styles.modalContent}
+              onPress={(e) => e.stopPropagation()}
+            >
+
+              {showDocumentoItem?.type === ".pdf" && (
+                <Pdf
+                  trustAllCerts={false}
+                  source={{
+                    uri: showDocumentoItem.url,
+                    cache: true,
+                    headers: { "User-Agent": "Mozilla/5.0" }
+                  }}
+                  style={styles.pdf}
+                />
+              )}
+
+              <View style={styles.containerButtonsActions2}>
+                <ButtonComponentCircleM2
+                  imagePath={mdi_share}
+                  onPress={() =>
+                    handleShareFile3(showDocumentoItem?.url ?? "")
+                  }
+                />
+
+                <ButtonComponentCircleM2
+                  imagePath={heroicons_solid_download}
+                  onPress={() =>
+                    showDocumentoItem &&
+                    hadleDowload3(
+                      showDocumentoItem.url,
+                      showDocumentoItem.name
+                    )
+                  }
+                />
+              </View>
+
+            </Pressable>
           </View>
         </Modal>
 
+        {/* Modal de imagem ampliada*/}
         <Modal
           transparent
           visible={showImagemSelecionada}
@@ -728,15 +808,33 @@ useEffect(()=>{
             setShowImagemItemSelecionada("");
           }}
         >
-          <TouchableOpacity
-            style={styles.modal3}
-            activeOpacity={0.4}
-            onPressOut={() => {
-              setShowImagemSelecionada(false);
-              setShowImagemItemSelecionada("");
-            }}
-          >
+          <View style={styles.modal3}>
+
+            {/* BOTÃO FECHAR */}
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                top: 50,
+                right: 20,
+                zIndex: 20,
+                backgroundColor: "#fff",
+                width: 36,
+                height: 36,
+                borderRadius: 18,
+                alignItems: "center",
+                justifyContent: "center",
+                elevation: 6
+              }}
+              onPress={() => {
+                setShowImagemSelecionada(false);
+                setShowImagemItemSelecionada("");
+              }}
+            >
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>✕</Text>
+            </TouchableOpacity>
+
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+
               {showImagemOrigem === "camera" ? (
                 <MarcaDaguaCaptura
                   ref={marcaDaguaRef}
@@ -748,7 +846,7 @@ useEffect(()=>{
                 />
               ) : (
                 <Image
-                  source={{ uri: `${showImagemItemSelecionada}` }}
+                  source={{ uri: showImagemItemSelecionada }}
                   style={styles.image}
                   resizeMode="contain"
                 />
@@ -764,27 +862,19 @@ useEffect(()=>{
                   onPress={() => hadleDowload2(showImagemItemSelecionada)}
                 />
               </View>
+
             </View>
-          </TouchableOpacity>
+          </View>
         </Modal>
 
         {/* Load */}
-        <Modal
-                transparent
-                visible={loadVisible}
-                animationType="fade"
-                // onRequestClose={() => {setVisiblemodal2(false),setEmailNewPassword("")}}
-              >
-                <TouchableOpacity
-                  style={styles.modal2}
-                  activeOpacity={0.4}      
-                  // onPressOut={() => {setVisiblemodal2(false),setEmailNewPassword("")}}
-                >
-                  <View style = {{flex:1,justifyContent : 'center',alignItems:'center'}}>
-                    <ActivityIndicator size = {'large'} color={Colors.primary}/>
-                  </View>
-                </TouchableOpacity>
-              </Modal>
+        <Modal transparent visible={loadVisible} animationType="fade">
+          <View style={styles.modal2}>
+            <View style={{ flex:1, justifyContent:'center', alignItems:'center' }}>
+              <ActivityIndicator size="large" color={Colors.primary}/>
+            </View>
+          </View>
+        </Modal>
       </View>
     </LinearGradient>
   );
@@ -839,18 +929,6 @@ const styles = StyleSheet.create({
     gap : 10,
     flex:1
   },
-
-  // textSelection: {
-  //   color: '#807979',
-  //   fontSize: 14,
-  //   // fontFamily: 'Poppins',
-  //   fontWeight: '500',
-  //   lineHeight: 30,
-  //   textAlign: 'right',
-  //   height: 30,
-  //   width : '100%',
-  //   right:28
-  // },
 
   filtercontainer:{
     height: 30,
@@ -1044,12 +1122,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 10,
     paddingVertical: 10,
-    // backgroundColor: '#ffffff',
-    // zIndex: 99999,
-    // borderBottomEndRadius: 5,
-    // borderBottomStartRadius: 5,
-    // borderColor : '#0000004D',
-    // borderWidth : 0.5,
     alignItems:'center'
   },
 
@@ -1242,4 +1314,23 @@ const styles = StyleSheet.create({
     zIndex: 99999,
     // backgroundColor:"#d80606"
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+modalContent: {
+  width: "90%",
+  height: "80%",
+  backgroundColor: "#fff",
+  borderRadius: 12,
+  overflow: "hidden",
+},
+
+pdf: {
+  flex: 1,
+  width: "100%",
+},
 });

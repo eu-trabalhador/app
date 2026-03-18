@@ -10,6 +10,8 @@ import {
   Image,
   Dimensions,
   Alert,
+  TouchableWithoutFeedback,
+  Pressable,
 } from "react-native";
 import { HeaderM2 } from "../components/HeaderM2";
 import { LinearGradient } from "expo-linear-gradient";
@@ -47,6 +49,7 @@ import Pdf from 'react-native-pdf';
 
 import FileViewer from 'react-native-file-viewer';
 import RNFetchBlob from 'react-native-blob-util';
+import React from "react";
 
 
 export default function MeusArquivosDocumentos() {
@@ -85,36 +88,6 @@ export default function MeusArquivosDocumentos() {
       openDocument(file,type)
     }
   }
-
-  // const handleShowDocument = async (file:string) => {
-  //   try {
-  //     const user = auth().currentUser;
-  //     if (!user) {
-  //       throw new Error("Usuário não autenticado");
-  //     }
-  //     // const url = await storage().ref(file).getDownloadURL();
-  //     const url = file
-  //     console.log(url)
-  //     const token = await user.getIdToken();
-  //     const res = await ReactNativeBlobUtil.config({
-  //       trusty: true,
-  //       fileCache: true,
-  //       appendExt: 'pdf'
-  //     }).fetch('GET', url, {
-  //       'Authorization': `Bearer ${token}`,
-  //       'User-Agent': 'Mozilla/5.0',
-  //       'Accept': 'application/pdf',
-  //     });
-
-  //     if (!res || !res.path()) {
-  //       throw new Error("Falha ao baixar o PDF");
-  //     }
-
-  //     setShowDocumentoItem(res.path());
-  //   } catch (error) {
-  //     console.error("Erro ao buscar o PDF:", error);
-  //   }
-  // };
 
   const toggleVisibleBar = () => {
     setVisibleBar(!visibleBar);
@@ -280,6 +253,12 @@ export default function MeusArquivosDocumentos() {
     if(showDocumentoItem?.url) setShowDocumentoGreat(true),setVisible2(true)
   },[showDocumentoItem])
 
+  const closeModal = () => {
+  setShowDocumentoGreat(false);
+  setShowDocumentoItem(undefined);
+  setVisible2(false);
+  };
+
   return (
     <LinearGradient colors={["#F7FAFC", "#8BC4FD"]} style={styles.container}>
       <View style={styles.container}>
@@ -351,29 +330,60 @@ export default function MeusArquivosDocumentos() {
       </View>
 
 
-      <Modal
-        transparent
-        visible={showDocumentoGreat}
-        animationType="fade"
-        onRequestClose={() => {setShowDocumentoGreat(false),setShowDocumentoItem({url:"",type:""})}}
-      >
-        
-        <View style={styles.modal2}>
-          
-          {showDocumentoItem?.type==".pdf"?
-          <Pdf 
-            trustAllCerts={false}
-            source={{uri:`${showDocumentoItem.url}`, cache: true,headers: { "User-Agent": "Mozilla/5.0" }}} 
-            style={styles.pdf} 
-          />:null}
-          {visible2 && (
-            <View style={styles.containerButtonsActions2}>
-              <ButtonComponentCircleM2 imagePath={mdi_share} onPress={()=>handleShareFile2(showDocumentoItem?showDocumentoItem.url:"")}/> 
-              <ButtonComponentCircleM2 imagePath={heroicons_solid_download} onPress={()=>showDocumentoItem?hadleDowload2(showDocumentoItem.url,showDocumentoItem?.name):""}/>
-            </View>
-          )}
+<Modal
+  transparent
+  visible={showDocumentoGreat}
+  animationType="fade"
+  statusBarTranslucent
+  onRequestClose={closeModal}
+>
+  {/* Overlay */}
+  <Pressable style={styles.modalOverlay} onPress={closeModal}>
+
+    {/* Container do documento */}
+    <Pressable
+      style={styles.modalContent}
+      onPress={(e) => e.stopPropagation()}
+    >
+
+      {showDocumentoItem?.type === ".pdf" && (
+        <Pdf
+          trustAllCerts={false}
+          source={{
+            uri: showDocumentoItem.url,
+            cache: true,
+            headers: { "User-Agent": "Mozilla/5.0" }
+          }}
+          style={styles.pdf}
+        />
+      )}
+
+      {visible2 && (
+        <View style={styles.containerButtonsActions2}>
+          <ButtonComponentCircleM2
+            imagePath={mdi_share}
+            onPress={() =>
+              handleShareFile2(showDocumentoItem?.url ?? "")
+            }
+          />
+
+          <ButtonComponentCircleM2
+            imagePath={heroicons_solid_download}
+            onPress={() =>
+              showDocumentoItem &&
+              hadleDowload2(
+                showDocumentoItem.url,
+                showDocumentoItem.name
+              )
+            }
+          />
         </View>
-      </Modal>
+      )}
+
+    </Pressable>
+
+  </Pressable>
+</Modal>
 
       {/* load */}
       <Modal
@@ -407,16 +417,28 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingBottom: 10,
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0,0,0,0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+  },
 
-
-  header: {
-    width: "100%",
+  modalContent: {
+    width: "90%",
+    height: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    overflow: "hidden",
   },
 
   pdf: {
-    flex:1,
-    // width:Dimensions.get('window').width,
-    // height:Dimensions.get('window').height,
+    flex: 1,
+    width: "100%",
+  },
+
+  header: {
+    width: "100%",
   },
   containerPdf: {
     flex: 1,

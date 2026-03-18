@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react';
 import { useUser } from '../context/Auth';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {AuthStack} from '../routes/AuthStack'
+import React from 'react';
+import { LoadingOverlay } from "../components/loadingOverlay";
 
 
 export default function Login() {
@@ -25,6 +27,8 @@ export default function Login() {
   const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
   const [visiblemodal2, setVisiblemodal2] = useState(false);
+  const { initializing } = useUser();
+  const [loadingLogin, setLoadingLogin] = useState(false);
 
 
   const toggleVisible = (value:boolean) => {
@@ -42,31 +46,49 @@ export default function Login() {
   
 
 
-  const handleLogin = async() => {
-    try{
-      const sanitizedEmail = sanitizeInput(email);
-      await signIn(sanitizedEmail,password)
-    }catch (error) {
-      Alert.alert("Erro ao fazer login:");
-    };
+const handleLogin = async () => {
+  try {
+    setLoadingLogin(true);
+
+    const sanitizedEmail = sanitizeInput(email);
+    await signIn(sanitizedEmail, password);
+
+  } catch (error) {
+    setLoadingLogin(false);
+    Alert.alert("Erro ao fazer login");
   }
+};
 
-  const handleModifyPassword = async(email:string) => {
-    try{
-      if(email){
-        const sanitizedEmail = sanitizeInput(email);
-        await modifyPassword(email);
-        toggleVisible(false);
-        setVisiblemodal2(true)
-        // Alert.alert("Email enviado com sucesso!")
-      }else{
-        Alert.alert("Email inválido.");
-      }
+const handleModifyPassword = async (email: string) => {
+  try {
 
-    }catch (error) {
+    if (!email) {
+      Alert.alert("Email inválido.");
+      return;
+    }
+
+    const sanitizedEmail = sanitizeInput(email);
+
+    await modifyPassword(sanitizedEmail);
+
+    toggleVisible(false);
+    setVisiblemodal2(true);
+
+  } catch (error: any) {
+
+    if (error.code === "auth/user-not-found") {
       Alert.alert("Usuário não encontrado.");
-    };
+    } 
+    else if (error.code === "auth/invalid-email") {
+      Alert.alert("Email inválido.");
+    } 
+    else {
+      Alert.alert("Erro ao enviar email de redefinição.");
+      console.log(error);
+    }
+
   }
+};
 
   const maskEmail = (email:string | null | undefined) => {
     if(email){
@@ -77,10 +99,6 @@ export default function Login() {
       return "";
     }
   };
-
-
-
-
 
   return (
 
@@ -170,10 +188,18 @@ export default function Login() {
         >
           <View style={styles.containerPassword2}>
             <Text style={styles.text12} allowFontScaling={false}>Alteração de senha</Text>
-            <Text style={styles.text22} numberOfLines={3} ellipsizeMode="tail" allowFontScaling={false}>Foi enviado um <Text style={styles.email2} allowFontScaling={false}>e-mail</Text> de alteração de senha para o endereço <Text style={styles.email2} allowFontScaling={false}>{maskEmail(emailNewPassword)}</Text>.</Text>
+            <Text
+            style={styles.text22}
+            numberOfLines={3}
+            ellipsizeMode="tail"
+            allowFontScaling={false}
+          >
+            Se o endereço <Text style={styles.email2} allowFontScaling={false}>{maskEmail(emailNewPassword)}</Text> estiver cadastrado em nossa plataforma, você receberá um <Text style={styles.email2} allowFontScaling={false}>e-mail</Text> com instruções para redefinir sua senha.
+          </Text>
           </View>
         </TouchableOpacity>
       </Modal>
+      {loadingLogin && <LoadingOverlay />}
     </View>
   );
 }

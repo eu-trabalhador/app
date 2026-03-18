@@ -305,7 +305,14 @@ export default function Login() {
         >
           <View style={styles.containerPassword}>
             <Text allowFontScaling={false} style={styles.text1}>Alteração de senha</Text>
-            <Text allowFontScaling={false} style={styles.text2} numberOfLines={3} ellipsizeMode="tail">Foi enviado um <Text allowFontScaling={false} style={styles.email}>e-mail</Text> de alteração de senha para o endereço <Text allowFontScaling={false} style={styles.email}>{maskEmail(user?.email)}</Text>.</Text>
+            <Text
+            allowFontScaling={false}
+            style={styles.text2}
+            numberOfLines={3}
+            ellipsizeMode="tail"
+          >
+            Se o endereço <Text allowFontScaling={false} style={styles.email}>{maskEmail(user?.email)}</Text> estiver cadastrado em nossa plataforma, você receberá um <Text allowFontScaling={false} style={styles.email}>e-mail</Text> com instruções para redefinir sua senha.
+          </Text>
           </View>
         </TouchableOpacity>
       </Modal>
